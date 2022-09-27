@@ -459,6 +459,16 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
 
             elif isinstance(data, ExtensionArray):
                 pass
+            elif hasattr(data, "__array__"):
+                data = np.asanyarray(data)
+                # Perform same checks as above for np.ndarray
+                if len(data.dtype):
+                    # GH#13296 we are dealing with a compound dtype, which
+                    #  should be treated as 2D
+                    raise ValueError(
+                        "Cannot construct a Series from an ndarray with "
+                        "compound dtype.  Use DataFrame instead."
+                    )
             else:
                 data = com.maybe_iterable_to_list(data)
 
